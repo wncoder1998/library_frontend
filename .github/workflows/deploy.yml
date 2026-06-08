@@ -26,8 +26,9 @@ jobs:
       - name: build
         run: pnpm install && pnpm run build
 
-      - name: deploy to local folder
+      - name: deploy
         run: |
+          mkdir -p /var/www/app
           rm -rf /var/www/app/*
           cp -r dist/* /var/www/app/
           echo "deploy done"
