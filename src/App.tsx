@@ -1,8 +1,17 @@
 import { useState } from "react";
 function App() {
-  const [count] = useState(0);
+  const [count, setCount] = useState(0);
 
-  return <div>{count}</div>;
+  const handleAdd = () => {
+    setCount(count + 1);
+  };
+
+  return (
+    <div>
+      <p>{count}</p>
+      <button onClick={handleAdd}>+1</button>
+    </div>
+  );
 }
 
 export default App;
