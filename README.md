@@ -1,10 +1,10 @@
 ### project: 图书管理系统
 
-### 代码提交规范
+### 1. 代码提交规范
 
-#### 1. @commitlint/cli"
+- @commitlint/cli"
 
-#### 2. @commitlint/config-conventional
+- @commitlint/config-conventional
 
 ```
 feat     新功能
@@ -16,3 +16,7 @@ test     测试
 chore    构建配置
 ci       CI/CD
 ```
+
+### 2. 编辑器行为一致
+
+- editorconfig
