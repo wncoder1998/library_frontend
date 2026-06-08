@@ -13,11 +13,18 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: install deps
-        run: npm install
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: 22.16.0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.12.1
 
       - name: build
-        run: npm run build
+        run: pnpm install && pnpm run build
 
       - name: deploy to local folder
         run: |
