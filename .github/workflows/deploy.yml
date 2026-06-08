@@ -28,7 +28,7 @@ jobs:
 
       - name: deploy
         run: |
-          mkdir -p /home/wn/deploy/app
-          rm -rf /home/wn/deploy/app/*
-          cp -r dist/* /home/wn/deploy/app/
+          mkdir -p /home/wn/library
+          rm -rf /home/wn/library/*
+          cp -r dist/* /home/wn/library/
           echo "deploy done"
