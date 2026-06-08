@@ -1,0 +1,49 @@
+name: "deploy project"
+
+run-name: ${{ github.actor }} run with github actions
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: 22.16.0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.12.1
+
+      - name: build project
+        run: pnpm install && pnpm build
+
+      - name: copy to service
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVICE_HOST }}
+          username: ${{ secrets.SERVICE_USER }}
+          key: ${{ secrets.SERVICE_SSH_KEY }}
+          source: "dist/*"
+          # target: "/home/wn/library"
+          target: ${{ secrets.SERVICE_TARGET }}
+
+      - name: Reload nginx
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVICE_HOST }}
+          username: ${{ secrets.SERVICE_USER }}
+          key: ${{ secrets.SERVICE_SSH_KEY }}
+          script: |
+            sudo systemctl reload nginx
