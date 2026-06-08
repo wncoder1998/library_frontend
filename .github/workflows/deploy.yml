@@ -28,7 +28,7 @@ jobs:
 
       - name: deploy
         run: |
-          mkdir -p /var/www/app
-          rm -rf /var/www/app/*
-          cp -r dist/* /var/www/app/
+          mkdir -p /home/wn/deploy/app
+          rm -rf /home/wn/deploy/app/*
+          cp -r dist/* /home/wn/deploy/app/
           echo "deploy done"
