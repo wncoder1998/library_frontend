@@ -6,6 +6,7 @@ const maxOutputTokens = Number(process.env.AI_REVIEW_MAX_OUTPUT_TOKENS || 1200);
 const maxRetries = Number(process.env.AI_REVIEW_MAX_RETRIES || 2);
 const retryDelayMs = Number(process.env.AI_REVIEW_RETRY_DELAY_MS || 65000);
 const rawDiff = fs.readFileSync("pr.diff", "utf8");
+const changedFiles = fs.existsSync("pr-files.txt") ? fs.readFileSync("pr-files.txt", "utf8").trim() : "";
 
 function sleep(ms) {
   return new Promise((resolve) => {
@@ -103,6 +104,7 @@ async function requestReview(chunk, index, total) {
           role: "user",
           content: [
             `这是完整 PR diff 的第 ${index + 1}/${total} 块。`,
+            changedFiles ? `完整变更文件清单：\n${changedFiles}` : "",
             "请只审查这一块 diff，并输出该块对应的风险和测试用例。",
             "如果这一块没有实质风险或不需要测试，请明确写“未发现需要单独补充的测试用例”。",
             "",
@@ -158,11 +160,36 @@ if (chunks.length === 0) {
 }
 
 const reviews = [];
+let stoppedByRateLimit = false;
 
 for (const [index, chunk] of chunks.entries()) {
   console.log(`正在审查第 ${index + 1}/${chunks.length} 块，字符数：${chunk.length}`);
-  const review = await requestReviewWithRetry(chunk, index, chunks.length);
-  reviews.push(`### 第 ${index + 1}/${chunks.length} 块\n\n${review}`);
+  try {
+    const review = await requestReviewWithRetry(chunk, index, chunks.length);
+    reviews.push(`### 第 ${index + 1}/${chunks.length} 块\n\n${review}`);
+  } catch (error) {
+    const isRateLimited = error.status === 429 || error.code === "rate_limit_exceeded";
+
+    if (!isRateLimited) {
+      throw error;
+    }
+
+    stoppedByRateLimit = true;
+    reviews.push(
+      [
+        `### 第 ${index + 1}/${chunks.length} 块`,
+        "",
+        "这一块没有生成成功，因为 OpenAI API 触发了 TPM 限流。",
+        "",
+        `- 模型：\`${model}\``,
+        `- 当前块字符数：\`${chunk.length}\``,
+        `- 错误码：\`${error.code || error.status}\``,
+        "",
+        "建议稍后重新运行 workflow，或继续减少可审查 diff 中的低价值文件。",
+      ].join("\n"),
+    );
+    break;
+  }
 }
 
 fs.writeFileSync(
@@ -170,7 +197,11 @@ fs.writeFileSync(
   [
     "## AI 生成的测试用例建议",
     "",
-    `> 已审查完整 PR diff，共 ${rawDiff.length} 个字符，分为 ${chunks.length} 块处理。`,
+    changedFiles ? "### 完整变更文件清单\n\n```text\n" + changedFiles + "\n```" : "",
+    "",
+    `> 已审查过滤后的可审查 diff，共 ${rawDiff.length} 个字符，分为 ${chunks.length} 块处理。`,
+    "> 为降低限流和噪音，已从 AI 输入中排除锁文件、二进制图片和许可证文本；完整变更文件清单见上方。",
+    stoppedByRateLimit ? "> 本次审查因 TPM 限流提前停止，结果只包含已完成的分块。" : "",
     "",
     ...reviews,
     "",

@@ -24,7 +24,17 @@ jobs:
 
       - name: Get PR diff
         run: |
-          git diff origin/${{ github.base_ref }}...HEAD > pr.diff
+          git diff --name-status origin/${{ github.base_ref }}...HEAD > pr-files.txt
+          git diff origin/${{ github.base_ref }}...HEAD -- . \
+            ':(exclude)pnpm-lock.yaml' \
+            ':(exclude)package-lock.json' \
+            ':(exclude)yarn.lock' \
+            ':(exclude)public/*.png' \
+            ':(exclude)public/*.jpg' \
+            ':(exclude)public/*.jpeg' \
+            ':(exclude)public/*.webp' \
+            ':(exclude).agents/skills/**/LICENSE.txt' \
+            > pr.diff
 
       - name: Generate AI test cases
         env:
