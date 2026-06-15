@@ -1,0 +1,66 @@
+name: AI PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  ai-pr-check:
+    name: AI PR Test Suggestions
+    runs-on: ubuntu-latest
+
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        run: |
+          git diff --name-status origin/${{ github.base_ref }}...HEAD > pr-files.txt
+          git diff origin/${{ github.base_ref }}...HEAD -- . \
+            ':(exclude)pnpm-lock.yaml' \
+            ':(exclude)package-lock.json' \
+            ':(exclude)yarn.lock' \
+            ':(exclude)public/*.png' \
+            ':(exclude)public/*.jpg' \
+            ':(exclude)public/*.jpeg' \
+            ':(exclude)public/*.webp' \
+            ':(exclude).agents/skills/**/LICENSE.txt' \
+            > pr.diff
+
+      - name: Generate AI test cases
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5.4-mini
+          AI_REVIEW_CHUNK_CHARS: 12000
+          AI_REVIEW_MAX_OUTPUT_TOKENS: 1200
+          AI_REVIEW_MAX_RETRIES: 2
+          AI_REVIEW_RETRY_DELAY_MS: 65000
+        run: node scripts/ai-pr-check.mjs
+
+      - name: Write AI result to summary
+        run: cat ai-review.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment AI result
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+
+            const body = fs.readFileSync("ai-review.md", "utf8");
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

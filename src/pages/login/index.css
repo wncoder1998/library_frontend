@@ -1,0 +1,124 @@
+.login-page::after {
+  position: absolute;
+  right: 9%;
+  bottom: -78px;
+  left: 9%;
+  height: 96px;
+  content: "";
+  border-radius: 999px;
+  background: rgb(26 38 58 / 14%);
+  filter: blur(42px);
+}
+
+.login-loading {
+  background:
+    linear-gradient(#4a4f58 0 0) 50% 0 / 2px 6px no-repeat,
+    linear-gradient(#4a4f58 0 0) 50% 100% / 2px 6px no-repeat,
+    linear-gradient(#4a4f58 0 0) 0 50% / 6px 2px no-repeat,
+    linear-gradient(#4a4f58 0 0) 100% 50% / 6px 2px no-repeat,
+    linear-gradient(#4a4f58 0 0) 14% 14% / 2px 6px no-repeat,
+    linear-gradient(#4a4f58 0 0) 86% 86% / 2px 6px no-repeat,
+    linear-gradient(#4a4f58 0 0) 86% 14% / 6px 2px no-repeat,
+    linear-gradient(#4a4f58 0 0) 14% 86% / 6px 2px no-repeat;
+  animation: login-spin 1.15s linear infinite;
+}
+
+.login-form .ant-form-item {
+  margin-bottom: 0;
+}
+
+.login-input.ant-input-affix-wrapper {
+  height: 46px;
+  padding: 0 16px;
+  border-color: #d7dce5;
+  border-radius: 5px;
+  box-shadow: none;
+}
+
+.login-input.ant-input-affix-wrapper-focused,
+.login-input.ant-input-affix-wrapper:focus-within,
+.login-input.ant-input-affix-wrapper:hover {
+  border-color: #3389ff;
+  box-shadow: 0 0 0 3px rgb(51 137 255 / 13%);
+}
+
+.login-input .ant-input {
+  color: #4a4f58;
+  font-size: 16px;
+}
+
+.login-input .ant-input::placeholder {
+  color: #9aa1ad;
+}
+
+.login-input .ant-input-prefix {
+  margin-inline-end: 14px;
+  color: #a7adb8;
+  font-size: 16px;
+}
+
+.login-input .ant-input-suffix {
+  margin-inline-start: 10px;
+}
+
+.login-input .ant-input-password-icon {
+  color: #a7adb8;
+  font-size: 16px;
+}
+
+.login-captcha-input.ant-input-affix-wrapper {
+  padding-right: 0;
+  overflow: hidden;
+}
+
+.login-captcha-code {
+  display: grid;
+  align-self: stretch;
+  min-width: 116px;
+  height: 46px;
+  place-items: center;
+  padding: 0 10px;
+  border-left: 1px solid #d7dce5;
+  background: #d4d8e2;
+  color: #333842;
+  font-size: 25px;
+  line-height: 1;
+  letter-spacing: -1px;
+  user-select: none;
+}
+
+.login-submit.ant-btn {
+  height: 46px;
+  border-radius: 5px;
+  background: #2f86f6;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 10px;
+  text-indent: 10px;
+  box-shadow: 0 8px 18px rgb(47 134 246 / 18%);
+}
+
+.login-submit.ant-btn:hover {
+  background: #227af0;
+  box-shadow: 0 12px 24px rgb(47 134 246 / 24%);
+  transform: translateY(-1px);
+}
+
+@keyframes login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (width <= 520px) {
+  .login-input.ant-input-affix-wrapper,
+  .login-submit.ant-btn {
+    height: 44px;
+  }
+
+  .login-captcha-code {
+    min-width: 96px;
+    height: 44px;
+    font-size: 20px;
+  }
+}
