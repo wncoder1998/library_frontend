@@ -30,8 +30,10 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.4-mini
-          AI_REVIEW_MAX_DIFF_CHARS: 20000
-          AI_REVIEW_MAX_OUTPUT_TOKENS: 2500
+          AI_REVIEW_CHUNK_CHARS: 12000
+          AI_REVIEW_MAX_OUTPUT_TOKENS: 1200
+          AI_REVIEW_MAX_RETRIES: 2
+          AI_REVIEW_RETRY_DELAY_MS: 65000
         run: node scripts/ai-pr-check.mjs
 
       - name: Write AI result to summary
