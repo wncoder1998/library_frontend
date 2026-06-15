@@ -1,5 +1,6 @@
 import fs from "node:fs";
 
+const model = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 const diff = fs.readFileSync("pr.diff", "utf8").slice(0, 60000);
 
 const response = await fetch("https://api.openai.com/v1/responses", {
@@ -9,7 +10,7 @@ const response = await fetch("https://api.openai.com/v1/responses", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    model: "gpt-5.2-mini",
+    model,
     input: [
       {
         role: "system",
